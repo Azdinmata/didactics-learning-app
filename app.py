@@ -728,6 +728,23 @@ if not st.session_state.logged_in:
 else:
     # --- MAIN APPLICATION (LOGGED IN) ---
     
+    if "last_viewed_state" not in st.session_state:
+        st.session_state.last_viewed_state = f"{st.session_state.current_view}_{st.session_state.active_tab}"
+    
+    current_state_str = f"{st.session_state.current_view}_{st.session_state.active_tab}"
+    if current_state_str != st.session_state.last_viewed_state:
+        import streamlit.components.v1 as components
+        components.html("""
+            <script>
+                const p = window.parent;
+                if(p) {
+                    p.scrollTo({top:0, behavior:'smooth'});
+                    const c = p.document.querySelector('.main') || p.document.querySelector('[data-testid="stAppViewContainer"]');
+                    if(c) c.scrollTo({top:0, behavior:'smooth'});
+                }
+            </script>
+        """, height=0, width=0)
+        st.session_state.last_viewed_state = current_state_str
     # Sidebar
     total_modules = len(MODULES)
     modules_unlocked_count = st.session_state.unlocked_index + 1
