@@ -520,15 +520,13 @@ function clickSys(text) {
 const hamburger = doc.getElementById('nav-hamburger');
 if(hamburger) {
     hamburger.onclick = function() {
-        const sidebar = doc.querySelector('[data-testid="stSidebar"]');
-        if(sidebar) {
-            const isHidden = window.getComputedStyle(sidebar).display === 'none';
-            if(isHidden) {
-                sidebar.style.setProperty('display', 'block', 'important');
-                sidebar.style.setProperty('transform', 'none', 'important');
-            } else {
-                sidebar.style.setProperty('display', 'none', 'important');
-            }
+        const expandBtn = doc.querySelector('[data-testid="collapsedControl"]');
+        const collapseBtn = doc.querySelector('[data-testid="stSidebarCollapseButton"]');
+        
+        if (collapseBtn) {
+            collapseBtn.click();
+        } else if (expandBtn) {
+            expandBtn.click();
         }
     };
 }
@@ -856,33 +854,37 @@ else:
                 
         st.markdown("<h2 style='margin-top: 48px; margin-bottom: 24px; color: #111827;'>📚 Course Modules</h2>", unsafe_allow_html=True)
         
-        cols = st.columns(3)
-        for i, mod in enumerate(MODULES[:6]):
-            col = cols[i % 3]
-            is_unlocked = i <= st.session_state.unlocked_index
-            badge_cls = "badge-unlocked" if is_unlocked else "badge-locked"
-            badge_txt = "✓ Unlocked" if is_unlocked else "🔒 Locked"
-            num = i + 1
-            
-            with col:
-                st.markdown(f"""
-                <div class="module-card">
-                    <div>
-                        <span class="module-card-badge {badge_cls}">{badge_txt}</span>
-                        <div style="font-size: 11px; color: #94a3b8; font-weight: 600; margin-bottom: 6px;">MODULE {num}</div>
-                        <div style="font-weight: 700; color: #111827; font-size: 15px; line-height: 1.4; margin-bottom: 8px;">{mod['title']}</div>
-                        <div style="font-size: 13px; color: #6b7280; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">{mod['description']}</div>
-                    </div>
-                </div>
-                """, unsafe_allow_html=True)
+        for row in range(0, 6, 3):
+            cols = st.columns(3)
+            for j in range(3):
+                i = row + j
+                if i >= len(MODULES): break
+                mod = MODULES[i]
+                col = cols[j]
+                is_unlocked = i <= st.session_state.unlocked_index
+                badge_cls = "badge-unlocked" if is_unlocked else "badge-locked"
+                badge_txt = "✓ Unlocked" if is_unlocked else "🔒 Locked"
+                num = i + 1
                 
-                if is_unlocked:
-                    if st.button(f"Open Module {num} ➔", key=f"home_go_{i}", use_container_width=True, type="primary"):
-                        st.session_state.current_view = i
-                        st.session_state.active_tab = "Materials"
-                        st.rerun()
-                else:
-                    st.button("🔒 Locked", key=f"home_go_{i}", disabled=True, use_container_width=True)
+                with col:
+                    st.markdown(f"""
+                    <div class="module-card">
+                        <div>
+                            <span class="module-card-badge {badge_cls}">{badge_txt}</span>
+                            <div style="font-size: 11px; color: #94a3b8; font-weight: 600; margin-bottom: 6px;">MODULE {num}</div>
+                            <div style="font-weight: 700; color: #111827; font-size: 15px; line-height: 1.4; margin-bottom: 8px;">{mod['title']}</div>
+                            <div style="font-size: 13px; color: #6b7280; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">{mod['description']}</div>
+                        </div>
+                    </div>
+                    """, unsafe_allow_html=True)
+                    
+                    if is_unlocked:
+                        if st.button(f"Open Module {num} ➔", key=f"home_go_{i}", use_container_width=True, type="primary"):
+                            st.session_state.current_view = i
+                            st.session_state.active_tab = "Materials"
+                            st.rerun()
+                    else:
+                        st.button("🔒 Locked", key=f"home_go_{i}", disabled=True, use_container_width=True)
 
         st.markdown("<h2 style='margin-top: 48px; margin-bottom: 24px; color: #111827;'>✨ AI Assistant</h2>", unsafe_allow_html=True)
         st.markdown("""
