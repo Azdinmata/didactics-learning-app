@@ -733,20 +733,22 @@ else:
     
     current_state_str = f"{st.session_state.current_view}_{st.session_state.active_tab}"
     if current_state_str != st.session_state.last_viewed_state:
+        import time
         import streamlit.components.v1 as components
-        components.html("""
+        components.html(f"""
             <script>
-                function forceScroll() {
+                // Execution ID: {time.time()}
+                function forceScroll() {{
                     const p = window.parent;
-                    if(p) {
+                    if(p) {{
                         p.scrollTo(0,0);
-                        const c = p.document.querySelector('[data-testid="stAppViewContainer"]') || p.document.querySelector('.main');
-                        if(c) {
+                        const c = p.document.querySelector('[data-testid="stMain"]') || p.document.querySelector('.stMain') || p.document.querySelector('.main');
+                        if(c) {{
                             c.scrollTo(0,0);
                             c.scrollTop = 0;
-                        }
-                    }
-                }
+                        }}
+                    }}
+                }}
                 forceScroll();
                 setTimeout(forceScroll, 50);
                 setTimeout(forceScroll, 150);
