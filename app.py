@@ -600,6 +600,15 @@ if not st.session_state.logged_in:
         mix-blend-mode: multiply;
         animation: floatHero 4s ease-in-out infinite;
     }
+    @media (max-width: 768px) {
+        .desktop-img-wrapper { display: none !important; }
+        .mobile-img-wrapper { display: flex !important; justify-content: center; margin-bottom: 24px; margin-top: 16px; }
+        .mobile-img-wrapper img { max-width: 240px !important; width: 100% !important; height: auto !important; }
+        [data-testid="column"]:first-of-type { padding: 32px 20px !important; }
+    }
+    @media (min-width: 769px) {
+        .mobile-img-wrapper { display: none !important; }
+    }
     </style>
     """, unsafe_allow_html=True)
     
@@ -619,7 +628,7 @@ if not st.session_state.logged_in:
         # RIGHT — illustration
         with right_col:
             st.markdown(f"""
-            <div style="display:flex;align-items:center;justify-content:center;height:100%;padding:32px 24px 32px 0;">
+            <div class="desktop-img-wrapper" style="display:flex;align-items:center;justify-content:center;height:100%;padding:32px 24px 32px 0;">
                 {_ill_html}
             </div>""", unsafe_allow_html=True)
 
@@ -628,7 +637,7 @@ if not st.session_state.logged_in:
 
 
             if st.session_state.auth_mode == "Landing":
-                st.markdown("""
+                st.markdown(f"""
                 <div style="padding: 0;">
                     <div style="font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#2563eb;margin-bottom:14px;">🏫 Didactics Hub</div>
                     <h1 style="font-size:32px;font-weight:800;color:#111827;line-height:1.2;margin-bottom:12px;">
@@ -636,6 +645,7 @@ if not st.session_state.logged_in:
                     </h1>
                     <p style="color:#6b7280;font-size:15px;margin-bottom:28px;line-height:1.6;">Sign in to continue your journey through didactic theories and practical methodologies.</p>
                 </div>
+                <div class="mobile-img-wrapper">{_ill_html}</div>
                 """, unsafe_allow_html=True)
                 with st.container():
                     if st.button("Sign In ➔", use_container_width=True, type="primary", key="landing_signin_btn"):
@@ -643,11 +653,12 @@ if not st.session_state.logged_in:
                     st.markdown("</div>", unsafe_allow_html=True)
 
             elif st.session_state.auth_mode == "Login":
-                st.markdown("""
+                st.markdown(f"""
                 <div style="padding: 0;">
                     <h2 style="font-size:28px;font-weight:800;color:#111827;margin-bottom:8px;">Welcome Back 👋</h2>
                     <p style="color:#6b7280;font-size:15px;margin-bottom:16px;">Please enter your details to sign in.</p>
                 </div>
+                <div class="mobile-img-wrapper">{_ill_html}</div>
                 """, unsafe_allow_html=True)
                 with st.container():
                     with st.form("login_form", border=False):
@@ -674,11 +685,12 @@ if not st.session_state.logged_in:
                             st.session_state.auth_mode = "Forgot Password"; st.rerun()
 
             elif st.session_state.auth_mode == "Sign Up":
-                st.markdown("""
+                st.markdown(f"""
                 <div style="padding: 0;">
                     <h2 style="font-size:28px;font-weight:800;color:#111827;margin-bottom:8px;">Create Account ✦</h2>
                     <p style="color:#6b7280;font-size:15px;margin-bottom:16px;">Sign up to start your didactic journey.</p>
                 </div>
+                <div class="mobile-img-wrapper">{_ill_html}</div>
                 """, unsafe_allow_html=True)
                 with st.container():
                     with st.form("signup_form", border=False):
@@ -700,11 +712,12 @@ if not st.session_state.logged_in:
                         st.session_state.auth_mode = "Login"; st.rerun()
 
             elif st.session_state.auth_mode == "Forgot Password":
-                st.markdown("""
+                st.markdown(f"""
                 <div style="padding: 0;">
                     <h2 style="font-size:28px;font-weight:800;color:#111827;margin-bottom:8px;">Reset Password 🔑</h2>
                     <p style="color:#6b7280;font-size:15px;margin-bottom:16px;">Enter your security answer to reset.</p>
                 </div>
+                <div class="mobile-img-wrapper">{_ill_html}</div>
                 """, unsafe_allow_html=True)
                 with st.container():
                     with st.form("forgot_form", border=False):
