@@ -919,12 +919,7 @@ else:
                         except Exception as e:
                             st.error(f"Error rendering presentation: {e}")
                         
-                        st.download_button(
-                            label="📥 Download PDF",
-                            data=pdf_bytes,
-                            file_name=os.path.basename(pdf_path),
-                            mime="application/pdf"
-                        )
+
                     else:
                         st.error(f"Could not find PDF file at {pdf_path}")
                         
