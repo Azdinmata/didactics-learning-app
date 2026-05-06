@@ -1042,7 +1042,7 @@ else:
                             with st.chat_message("assistant", avatar="assistant"):
                                 with st.spinner("Thinking..."):
                                     try:
-                                        response = ai_assistant.get_real_response(st.session_state.chat_history)
+                                        response = ai_assistant.get_real_response(st.session_state.chat_history, current_mod)
                                         if not response:
                                             response = "⚠️ Received an empty response from the AI. Please try again."
                                     except Exception as e:
