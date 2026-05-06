@@ -736,12 +736,22 @@ else:
         import streamlit.components.v1 as components
         components.html("""
             <script>
-                const p = window.parent;
-                if(p) {
-                    p.scrollTo({top:0, behavior:'smooth'});
-                    const c = p.document.querySelector('.main') || p.document.querySelector('[data-testid="stAppViewContainer"]');
-                    if(c) c.scrollTo({top:0, behavior:'smooth'});
+                function forceScroll() {
+                    const p = window.parent;
+                    if(p) {
+                        p.scrollTo(0,0);
+                        const c = p.document.querySelector('[data-testid="stAppViewContainer"]') || p.document.querySelector('.main');
+                        if(c) {
+                            c.scrollTo(0,0);
+                            c.scrollTop = 0;
+                        }
+                    }
                 }
+                forceScroll();
+                setTimeout(forceScroll, 50);
+                setTimeout(forceScroll, 150);
+                setTimeout(forceScroll, 300);
+                setTimeout(forceScroll, 600);
             </script>
         """, height=0, width=0)
         st.session_state.last_viewed_state = current_state_str
