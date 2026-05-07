@@ -1,9 +1,0 @@
-services:
-  - type: web
-    name: didactics-hub
-    runtime: python
-    buildCommand: pip install -r requirements.txt && pip install gunicorn
-    startCommand: gunicorn server:app
-    envVars:
-      - key: GROQ_API_KEY
-        sync: false
