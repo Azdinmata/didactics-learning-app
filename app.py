@@ -42,6 +42,22 @@ st.markdown("""
         border-radius: 8px !important;
         font-weight: 700 !important;
     }
+    
+    /* Make lesson inline-flex rows wrap beautifully on mobile */
+    div[style*="display:flex"], 
+    div[style*="display: flex"] {
+        flex-wrap: wrap !important;
+    }
+    
+    .info-box {
+        flex: 1 1 calc(33.333% - 16px) !important;
+        min-width: 240px !important;
+        padding: 16px !important;
+        margin: 8px 0 !important;
+        border-radius: 12px !important;
+        color: #1e293b !important; /* Elegant slate color for contrast */
+    }
+
     /* Stop columns or input components from collapsing inappropriately on small screens */
     @media (max-width: 768px) {
         div[data-testid="column"] {
@@ -49,6 +65,19 @@ st.markdown("""
             flex: 1 1 calc(50% - 1rem) !important;
             min-width: unset !important;
             display: block !important;
+        }
+        
+        /* Force flex container rows to stack vertically on phones */
+        div[style*="display:flex"], 
+        div[style*="display: flex"] {
+            flex-direction: column !important;
+            align-items: stretch !important;
+        }
+        
+        .info-box {
+            flex: 1 1 100% !important;
+            width: 100% !important;
+            margin: 6px 0 !important;
         }
     }
     </style>
