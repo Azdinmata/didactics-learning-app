@@ -1338,3 +1338,37 @@ body.theater-mode-active .workspace-card {
     flex: 1 1 auto !important;
     min-width: 0 !important;
 }
+
+/* ==========================================================================
+   LESSON CONTENT INLINE FLEX RESPONSIVE OVERRIDES
+   ========================================================================== */
+/* Make lesson inline-flex rows wrap beautifully on desktop/tablet */
+div[style*="display:flex"], 
+div[style*="display: flex"] {
+    flex-wrap: wrap !important;
+}
+
+.info-box {
+    flex: 1 1 calc(33.333% - 16px) !important;
+    min-width: 240px !important;
+    padding: 16px !important;
+    margin: 8px 0 !important;
+    border-radius: 12px !important;
+    color: #1e293b !important; /* Elegant slate contrast */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+@media (max-width: 768px) {
+    /* Force inline flex containers to stack as columns on phone screens */
+    div[style*="display:flex"], 
+    div[style*="display: flex"] {
+        flex-direction: column !important;
+        align-items: stretch !important;
+    }
+    
+    .info-box {
+        flex: 1 1 100% !important;
+        width: 100% !important;
+        margin: 6px 0 !important;
+    }
+}
