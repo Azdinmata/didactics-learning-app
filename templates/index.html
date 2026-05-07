@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Didactics Hub - Teacher Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="/static/style.css" rel="stylesheet">
+</head>
+<body>
+    <!-- App Shell -->
+    <div class="app-container">
+        
+        <!-- SIDEBAR -->
+        <aside class="app-sidebar" id="appSidebar">
+            <div class="sidebar-brand">
+                <span class="brand-logo">🎓</span>
+                <span class="brand-title">Didactics Hub</span>
+            </div>
+
+            <!-- Profile Widget -->
+            <div class="profile-widget">
+                <div class="profile-avatar">👨‍🏫</div>
+                <div class="profile-info">
+                    <div class="profile-name" id="profileName">Loading User...</div>
+                    <div class="profile-role">Trainee Teacher</div>
+                </div>
+                <button class="logout-btn" onclick="handleLogout()" title="Log Out">🚪</button>
+            </div>
+
+            <!-- Navigation Links (Modules) -->
+            <nav class="modules-nav">
+                <div class="nav-section-title">Course Curriculum</div>
+                <div class="modules-list" id="modulesList">
+                    <!-- Dynamic Modules injection -->
+                </div>
+            </nav>
+
+            <!-- Support / Help Area -->
+            <div class="sidebar-support">
+                <button class="support-btn ai-trigger" onclick="toggleFloatingChat(true)">
+                    <span>✨ Open AI Assistant</span>
+                    <span class="bubble-tag">AI</span>
+                </button>
+                <div class="support-text">
+                    Stuck on a concept? Chat with our Socratic Didactics Tutor anytime!
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="app-main">
+            <!-- Mobile Menu Header -->
+            <header class="mobile-header">
+                <button class="menu-toggle" id="menuToggle" onclick="toggleMobileSidebar()">☰</button>
+                <div class="mobile-brand">Didactics Hub</div>
+                <div style="width: 24px;"></div> <!-- Spacer -->
+            </header>
+
+            <!-- Main Scroll Container -->
+            <div class="workspace-viewport">
+                <!-- Welcome Banner -->
+                <div id="welcomeBanner" class="welcome-banner">
+                    <h1 class="welcome-title">Loading Course State...</h1>
+                    <p class="welcome-desc">Syncing progress database...</p>
+                </div>
+
+                <!-- MAIN WORKSPACE CONTAINER -->
+                <div class="workspace-card" id="workspaceCard" style="display: none;">
+                    
+                    <!-- WORKSPACE HEADER -->
+                    <div class="workspace-header">
+                        <div class="module-meta-badge" id="workspaceBadge">Module X</div>
+                        <h2 class="module-title" id="workspaceTitle">Loading Module Title...</h2>
+                        <p class="module-desc" id="workspaceDesc">Loading module description...</p>
+                    </div>
+
+                    <!-- MATERIALS TAB (Default View) -->
+                    <div id="materialsView" class="workspace-view active">
+                        <div class="pdf-header-bar">📖 Lesson Textbook Presentation</div>
+                        <div class="pdf-container-outer">
+                            <div class="pdf-control-bar">
+                                <span class="pdf-scroll-instruction">Scroll down to view all slides</span>
+                                <button id="pdfScaleToggle" class="pdf-scale-btn" onclick="togglePdfFullscreen()">
+                                    <span>🔍 Maximize Presentation</span>
+                                </button>
+                            </div>
+                            <div id="pdfCanvasContainer" class="pdf-canvas-container">
+                            </div>
+                        </div>
+
+                        <!-- Proceed to Quiz Action Block -->
+                        <div class="action-divider"></div>
+                        <div class="view-navigation-block">
+                            <button class="primary-action-btn" onclick="switchActiveTab('Quiz')">
+                                📝 Proceed to Knowledge Check Assessment ➔
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- QUIZ ASSESSMENT TAB (Secondary View) -->
+                    <div id="quizView" class="workspace-view">
+                        <div class="back-nav-bar">
+                            <button class="back-nav-btn" onclick="switchActiveTab('Materials')">
+                                ⬅ Return to Lesson Presentation
+                            </button>
+                        </div>
+
+                        <div class="assessment-header-box">
+                            <div class="badge">🎯 Module Assessment</div>
+                            <h3>Module Knowledge Check</h3>
+                            <p>Verify your understanding of the concepts covered in this module's textbook.</p>
+                        </div>
+
+                        <div class="quiz-info-alert">
+                            ℹ️ You must score <strong>at least 8 out of 10</strong> to unlock the next lesson module.
+                        </div>
+
+                        <!-- Assessment Quiz Form -->
+                        <form id="quizForm" onsubmit="handleQuizSubmit(event)">
+                            <div class="quiz-questions-list" id="quizQuestionsList">
+                                <!-- Dynamic questions loaded here -->
+                            </div>
+                            
+                            <div class="quiz-submission-bar">
+                                <button type="submit" class="quiz-submit-btn">Submit Quiz Answers</button>
+                            </div>
+                        </form>
+
+                        <!-- Quiz Feedback Box -->
+                        <div id="quizFeedbackBox" class="quiz-feedback-box" style="display: none;">
+                            <h4 id="feedbackScore">Score: 0/10</h4>
+                            <p id="feedbackText">Feedback text here...</p>
+                        </div>
+
+                        <!-- Progress Advancement Link -->
+                        <div id="nextLessonBlock" class="next-lesson-block" style="display: none;">
+                            <hr class="dash-divider">
+                            <div class="next-lesson-inner">
+                                <div class="congrats-text">🏆 Assessment Passed! Ready to proceed.</div>
+                                <button class="next-lesson-btn" id="btnNextLesson" onclick="advanceToNextModule()">
+                                    Proceed to Next Lesson ➔
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- GLOBAL FLOATING AI ASSISTANT -->
+    <div id="floatingAiAnchor" class="floating-ai-anchor">
+        <!-- Floating bubble button -->
+        <button class="floating-chat-bubble" id="chatBubble" onclick="toggleFloatingChat()" title="Didactics AI Tutor">
+            <span class="bubble-icon" id="bubbleIcon">💬</span>
+        </button>
+
+        <!-- Smartphone chat panel -->
+        <div class="floating-chat-panel" id="chatPanel">
+            <div class="chat-panel-header">
+                <div class="header-tutor-profile">
+                    <span class="tutor-avatar">🤖</span>
+                    <div class="tutor-profile-info">
+                        <div class="tutor-name">Didactics AI Tutor</div>
+                        <div class="tutor-status">Socratic Method Mode</div>
+                    </div>
+                </div>
+                <button class="chat-close-btn" onclick="toggleFloatingChat(false)">✕</button>
+            </div>
+
+            <!-- Messages Log -->
+            <div class="chat-messages-container" id="chatMessages">
+                <div class="chat-bubble assistant">
+                    Hello! I'm your Socratic Didactics Tutor. Ask me any questions about our active teaching methodologies or lesson presentations!
+                </div>
+            </div>
+
+            <!-- Loader indicator -->
+            <div class="chat-loading-indicator" id="chatLoader">
+                <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+            </div>
+
+            <!-- Message Input Area -->
+            <form id="chatForm" class="chat-input-area" onsubmit="handleChatSubmit(event)">
+                <input type="text" id="chatInput" class="chat-input-field" placeholder="Ask about active pedagogy..." required autocomplete="off">
+                <button type="submit" class="chat-submit-btn">Send</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Premium CSS Particle Confetti Container -->
+    <div class="confetti-container" id="confettiContainer"></div>
+
+    <script src="/static/main.js"></script>
+</body>
+</html>

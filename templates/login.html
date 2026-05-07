@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Didactics Hub - Portal Entrance</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --secondary: #4f46e5;
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 40%, #311042 100%);
+            --card-bg: rgba(255, 255, 255, 0.06);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --success: #10b981;
+            --error: #f43f5e;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            overflow-x: hidden;
+        }
+
+        /* Ambient glowing circles in background */
+        .glow-circle {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(120px);
+            z-index: 0;
+            opacity: 0.15;
+            pointer-events: none;
+        }
+        .glow-1 {
+            width: 400px;
+            height: 400px;
+            background: var(--primary);
+            top: 10%;
+            left: 10%;
+        }
+        .glow-2 {
+            width: 500px;
+            height: 500px;
+            background: var(--secondary);
+            bottom: 10%;
+            right: 10%;
+        }
+
+        .portal-wrapper {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 460px;
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .portal-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .portal-logo {
+            font-size: 36px;
+            margin-bottom: 12px;
+            display: inline-block;
+            animation: bounce 2s infinite ease-in-out;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+
+        .portal-title {
+            font-size: 26px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #3b82f6, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        .portal-subtitle {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        /* Tabs System */
+        .portal-tabs {
+            display: flex;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .portal-tab {
+            flex: 1;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            padding: 10px 14px;
+            font-size: 13.5px;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.25s ease;
+            text-align: center;
+        }
+
+        .portal-tab.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        /* Forms */
+        .portal-form {
+            display: none;
+        }
+
+        .portal-form.active {
+            display: block;
+            animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .input-group {
+            margin-bottom: 18px;
+            text-align: left;
+        }
+
+        .input-label {
+            display: block;
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-field {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 12px 14px;
+            font-size: 14px;
+            color: var(--text);
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .input-field:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .submit-btn {
+            width: 100%;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            border: none;
+            border-radius: 10px;
+            padding: 14px;
+            font-size: 15px;
+            font-weight: 700;
+            color: white;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            margin-top: 10px;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.35);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Message Notification Alert box */
+        .alert-box {
+            display: none;
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 13.5px;
+            margin-bottom: 20px;
+            line-height: 1.5;
+            animation: shake 0.4s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-4px); }
+            75% { transform: translateX(4px); }
+        }
+
+        .alert-box.success {
+            display: block;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: var(--success);
+        }
+
+        .alert-box.error {
+            display: block;
+            background: rgba(244, 63, 94, 0.1);
+            border: 1px solid rgba(244, 63, 94, 0.3);
+            color: var(--error);
+        }
+    </style>
+</head>
+<body>
+    <div class="glow-circle glow-1"></div>
+    <div class="glow-circle glow-2"></div>
+
+    <div class="portal-wrapper">
+        <div class="portal-header">
+            <div class="portal-logo">🎓</div>
+            <h1 class="portal-title">Didactics Hub</h1>
+            <p class="portal-subtitle">Master didactic theories & teaching practices</p>
+        </div>
+
+        <div class="portal-tabs">
+            <button class="portal-tab active" onclick="switchTab('login')">Sign In</button>
+            <button class="portal-tab" onclick="switchTab('register')">Sign Up</button>
+            <button class="portal-tab" onclick="switchTab('reset')">Reset</button>
+        </div>
+
+        <div id="alertBox" class="alert-box"></div>
+
+        <!-- LOGIN FORM -->
+        <form id="loginForm" class="portal-form active" onsubmit="handleFormSubmit(event, 'login')">
+            <div class="input-group">
+                <label class="input-label">Username</label>
+                <input type="text" id="loginUser" class="input-field" placeholder="Enter your username" required autocomplete="username">
+            </div>
+            <div class="input-group" style="margin-bottom: 24px;">
+                <label class="input-label">Password</label>
+                <input type="password" id="loginPass" class="input-field" placeholder="••••••••" required autocomplete="current-password">
+            </div>
+            <button type="submit" class="submit-btn">Authorize Entrance ➔</button>
+        </form>
+
+        <!-- REGISTER FORM -->
+        <form id="registerForm" class="portal-form" onsubmit="handleFormSubmit(event, 'register')">
+            <div class="input-group">
+                <label class="input-label">New Username</label>
+                <input type="text" id="registerUser" class="input-field" placeholder="Choose a username" required>
+            </div>
+            <div class="input-group">
+                <label class="input-label">Password</label>
+                <input type="password" id="registerPass" class="input-field" placeholder="••••••••" required>
+            </div>
+            <div class="input-group" style="margin-bottom: 24px;">
+                <label class="input-label">Security Question: What is your favorite book?</label>
+                <input type="text" id="registerSecurity" class="input-field" placeholder="Used for resetting password" required>
+            </div>
+            <button type="submit" class="submit-btn">Create Professional Account ➔</button>
+        </form>
+
+        <!-- RESET PASSWORD FORM -->
+        <form id="resetForm" class="portal-form" onsubmit="handleFormSubmit(event, 'reset')">
+            <div class="input-group">
+                <label class="input-label">Username</label>
+                <input type="text" id="resetUser" class="input-field" placeholder="Enter your username" required>
+            </div>
+            <div class="input-group">
+                <label class="input-label">Favorite Book (Security Answer)</label>
+                <input type="text" id="resetSecurity" class="input-field" placeholder="Enter security answer" required>
+            </div>
+            <div class="input-group" style="margin-bottom: 24px;">
+                <label class="input-label">New Password</label>
+                <input type="password" id="resetNewPass" class="input-field" placeholder="••••••••" required>
+            </div>
+            <button type="submit" class="submit-btn">Secure Reset Password ➔</button>
+        </form>
+    </div>
+
+    <script>
+        function switchTab(tabId) {
+            // Update tabs active state
+            document.querySelectorAll('.portal-tab').forEach((tab, index) => {
+                const tabs = ['login', 'register', 'reset'];
+                tab.classList.toggle('active', tabs[index] === tabId);
+            });
+
+            // Update visible forms
+            document.querySelectorAll('.portal-form').forEach(form => {
+                form.classList.toggle('active', form.id === tabId + 'Form');
+            });
+
+            // Clear alert box
+            const alertBox = document.getElementById('alertBox');
+            alertBox.style.display = 'none';
+            alertBox.className = 'alert-box';
+        }
+
+        async function handleFormSubmit(event, action) {
+            event.preventDefault();
+            const alertBox = document.getElementById('alertBox');
+            alertBox.style.display = 'none';
+            alertBox.className = 'alert-box';
+
+            let payload = {};
+            let endpoint = '';
+
+            if (action === 'login') {
+                payload = {
+                    username: document.getElementById('loginUser').value,
+                    password: document.getElementById('loginPass').value
+                };
+                endpoint = '/api/auth/login';
+            } else if (action === 'register') {
+                payload = {
+                    username: document.getElementById('registerUser').value,
+                    password: document.getElementById('registerPass').value,
+                    security_answer: document.getElementById('registerSecurity').value
+                };
+                endpoint = '/api/auth/register';
+            } else if (action === 'reset') {
+                payload = {
+                    username: document.getElementById('resetUser').value,
+                    security_answer: document.getElementById('resetSecurity').value,
+                    new_password: document.getElementById('resetNewPass').value
+                };
+                endpoint = '/api/auth/reset';
+            }
+
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    alertBox.textContent = result.message;
+                    alertBox.classList.add('success');
+                    alertBox.style.display = 'block';
+
+                    if (action === 'login') {
+                        setTimeout(() => {
+                            window.location.href = '/';
+                        }, 800);
+                    } else {
+                        setTimeout(() => {
+                            switchTab('login');
+                            document.getElementById('loginUser').value = payload.username;
+                        }, 1200);
+                    }
+                } else {
+                    alertBox.textContent = result.message || 'An unexpected error occurred.';
+                    alertBox.classList.add('error');
+                    alertBox.style.display = 'block';
+                }
+            } catch (err) {
+                alertBox.textContent = 'Server connection failed. Please verify connection.';
+                alertBox.classList.add('error');
+                alertBox.style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>
