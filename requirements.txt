@@ -1,0 +1,7 @@
+pdfplumber
+fpdf
+openai
+markdown
+flask
+pypdfium2
+streamlit
