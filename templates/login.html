@@ -4,81 +4,47 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Didactics Hub - Portal Entrance</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Modern Premium Typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
     <style>
-        :root {
-            --primary: #2563eb;
-            --primary-hover: #1d4ed8;
-            --secondary: #4f46e5;
-            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 40%, #311042 100%);
-            --card-bg: rgba(255, 255, 255, 0.06);
-            --card-border: rgba(255, 255, 255, 0.1);
-            --text: #f8fafc;
-            --text-muted: #94a3b8;
-            --success: #10b981;
-            --error: #f43f5e;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
-        }
-
+        /* Immersive background customizer for the entrance */
         body {
-            background: var(--bg-gradient);
-            color: var(--text);
-            min-height: 100vh;
+            background: radial-gradient(circle at top right, rgba(79, 70, 229, 0.15), transparent 45%),
+                        radial-gradient(circle at bottom left, rgba(37, 99, 235, 0.12), transparent 40%),
+                        #0b0f19;
+            color: #f3f4f6;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 24px;
+            min-height: 100vh;
+            margin: 0;
             overflow-x: hidden;
+            font-family: 'Plus Jakarta Sans', sans-serif;
         }
 
-        /* Ambient glowing circles in background */
-        .glow-circle {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(120px);
-            z-index: 0;
-            opacity: 0.15;
-            pointer-events: none;
-        }
-        .glow-1 {
-            width: 400px;
-            height: 400px;
-            background: var(--primary);
-            top: 10%;
-            left: 10%;
-        }
-        .glow-2 {
-            width: 500px;
-            height: 500px;
-            background: var(--secondary);
-            bottom: 10%;
-            right: 10%;
-        }
-
-        .portal-wrapper {
-            position: relative;
-            z-index: 10;
+        .portal-container {
             width: 100%;
-            max-width: 460px;
-            background: var(--card-bg);
+            max-width: 440px;
+            padding: 20px;
+            box-sizing: border-box;
+            perspective: 1000px;
+        }
+
+        .portal-card {
+            background: rgba(17, 24, 39, 0.7);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--card-border);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 24px;
             padding: 40px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+            transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        .portal-card:hover {
+            box-shadow: 0 25px 60px rgba(37, 99, 235, 0.2);
+            border-color: rgba(37, 99, 235, 0.25);
         }
 
         .portal-header {
@@ -87,317 +53,337 @@
         }
 
         .portal-logo {
-            font-size: 36px;
-            margin-bottom: 12px;
-            display: inline-block;
-            animation: bounce 2s infinite ease-in-out;
-        }
-
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-6px); }
-        }
-
-        .portal-title {
-            font-size: 26px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 32px;
             font-weight: 800;
-            letter-spacing: -0.5px;
-            background: linear-gradient(135deg, #3b82f6, #a855f7);
+            letter-spacing: -0.03em;
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-bottom: 8px;
         }
 
         .portal-subtitle {
+            color: #9ca3af;
             font-size: 14px;
-            color: var(--text-muted);
         }
 
-        /* Tabs System */
-        .portal-tabs {
-            display: flex;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 12px;
-            padding: 4px;
+        .form-group {
+            position: relative;
             margin-bottom: 24px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        .portal-tab {
-            flex: 1;
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            padding: 10px 14px;
-            font-size: 13.5px;
-            font-weight: 600;
-            cursor: pointer;
-            border-radius: 8px;
-            transition: all 0.25s ease;
-            text-align: center;
-        }
-
-        .portal-tab.active {
-            background: rgba(255, 255, 255, 0.1);
-            color: var(--text);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-
-        /* Forms */
-        .portal-form {
-            display: none;
-        }
-
-        .portal-form.active {
+        .form-label {
             display: block;
-            animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateX(10px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-
-        .input-group {
-            margin-bottom: 18px;
-            text-align: left;
-        }
-
-        .input-label {
-            display: block;
-            font-size: 12.5px;
+            font-size: 13px;
             font-weight: 600;
-            color: var(--text-muted);
+            color: #9ca3af;
             margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.02em;
         }
 
-        .input-field {
+        .form-input {
             width: 100%;
-            background: rgba(0, 0, 0, 0.2);
+            background: rgba(255, 255, 255, 0.04);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            padding: 12px 14px;
-            font-size: 14px;
-            color: var(--text);
+            border-radius: 12px;
+            padding: 14px 16px;
+            color: #ffffff;
+            font-size: 15px;
+            box-sizing: border-box;
+            transition: all 0.25s ease;
+        }
+
+        .form-input:focus {
             outline: none;
-            transition: all 0.2s ease;
+            border-color: #3b82f6;
+            background: rgba(59, 130, 246, 0.05);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
         }
 
-        .input-field:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
-            background: rgba(0, 0, 0, 0.3);
+        .form-input::placeholder {
+            color: #4b5563;
         }
 
-        .submit-btn {
+        .btn-portal {
             width: 100%;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
             border: none;
-            border-radius: 10px;
-            padding: 14px;
+            border-radius: 12px;
+            color: #ffffff;
+            padding: 15px;
             font-size: 15px;
             font-weight: 700;
-            color: white;
             cursor: pointer;
-            transition: all 0.25s ease;
+            transition: all 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
             margin-top: 10px;
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
         }
 
-        .submit-btn:hover {
+        .btn-portal:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.35);
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.45);
+            background: linear-gradient(135deg, #1d4ed8 0%, #4338ca 100%);
         }
 
-        .submit-btn:active {
+        .btn-portal:active {
             transform: translateY(0);
         }
 
-        /* Message Notification Alert box */
+        .portal-switch {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 14px;
+            color: #9ca3af;
+        }
+
+        .portal-switch a {
+            color: #3b82f6;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s ease;
+        }
+
+        .portal-switch a:hover {
+            color: #60a5fa;
+            text-decoration: underline;
+        }
+
         .alert-box {
+            border-radius: 12px;
+            padding: 14px 16px;
+            font-size: 14px;
+            margin-bottom: 24px;
             display: none;
-            padding: 12px 16px;
-            border-radius: 10px;
-            font-size: 13.5px;
-            margin-bottom: 20px;
-            line-height: 1.5;
-            animation: shake 0.4s ease-in-out;
+            animation: slideDown 0.3s ease;
         }
 
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-4px); }
-            75% { transform: translateX(4px); }
+        .alert-error {
+            background: rgba(239, 68, 68, 0.12);
+            border: 1px solid rgba(239, 68, 68, 0.25);
+            color: #fca5a5;
         }
 
-        .alert-box.success {
-            display: block;
-            background: rgba(16, 185, 129, 0.1);
-            border: 1px solid rgba(16, 185, 129, 0.3);
-            color: var(--success);
+        .alert-success {
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            color: #a7f3d0;
         }
 
-        .alert-box.error {
-            display: block;
-            background: rgba(244, 63, 94, 0.1);
-            border: 1px solid rgba(244, 63, 94, 0.3);
-            color: var(--error);
+        @keyframes slideDown {
+            from { transform: translateY(-10px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .nav-back {
+            text-align: center;
+            margin-top: 16px;
+            font-size: 13px;
         }
     </style>
 </head>
 <body>
-    <div class="glow-circle glow-1"></div>
-    <div class="glow-circle glow-2"></div>
 
-    <div class="portal-wrapper">
+<div class="portal-container">
+    <!-- Card element dynamically toggling states -->
+    <div class="portal-card" id="login-section">
         <div class="portal-header">
-            <div class="portal-logo">🎓</div>
-            <h1 class="portal-title">Didactics Hub</h1>
-            <p class="portal-subtitle">Master didactic theories & teaching practices</p>
+            <div class="portal-logo">Didactics Hub</div>
+            <div class="portal-subtitle">Log in to access your course panel</div>
         </div>
 
-        <div class="portal-tabs">
-            <button class="portal-tab active" onclick="switchTab('login')">Sign In</button>
-            <button class="portal-tab" onclick="switchTab('register')">Sign Up</button>
-            <button class="portal-tab" onclick="switchTab('reset')">Reset</button>
+        <div class="alert-box alert-error" id="login-error"></div>
+
+        <form id="login-form" onsubmit="handleLogin(event)">
+            <div class="form-group">
+                <label class="form-label" for="login-username">Username</label>
+                <input class="form-input" id="login-username" type="text" placeholder="Enter username..." required autocomplete="username">
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="login-password">Password</label>
+                <input class="form-input" id="login-password" type="password" placeholder="••••••••" required autocomplete="current-password">
+            </div>
+            <button class="btn-portal" type="submit">Sign In</button>
+        </form>
+
+        <div class="portal-switch">
+            Don't have an account? <a href="#" onclick="toggleSection('register-section')">Create Account</a>
+            <div style="margin-top: 12px;">
+                <a href="#" style="font-size: 13px; font-weight: 500; color: #6b7280;" onclick="toggleSection('reset-section')">Forgot Password?</a>
+            </div>
         </div>
-
-        <div id="alertBox" class="alert-box"></div>
-
-        <!-- LOGIN FORM -->
-        <form id="loginForm" class="portal-form active" onsubmit="handleFormSubmit(event, 'login')">
-            <div class="input-group">
-                <label class="input-label">Username</label>
-                <input type="text" id="loginUser" class="input-field" placeholder="Enter your username" required autocomplete="username">
-            </div>
-            <div class="input-group" style="margin-bottom: 24px;">
-                <label class="input-label">Password</label>
-                <input type="password" id="loginPass" class="input-field" placeholder="••••••••" required autocomplete="current-password">
-            </div>
-            <button type="submit" class="submit-btn">Authorize Entrance ➔</button>
-        </form>
-
-        <!-- REGISTER FORM -->
-        <form id="registerForm" class="portal-form" onsubmit="handleFormSubmit(event, 'register')">
-            <div class="input-group">
-                <label class="input-label">New Username</label>
-                <input type="text" id="registerUser" class="input-field" placeholder="Choose a username" required>
-            </div>
-            <div class="input-group">
-                <label class="input-label">Password</label>
-                <input type="password" id="registerPass" class="input-field" placeholder="••••••••" required>
-            </div>
-            <div class="input-group" style="margin-bottom: 24px;">
-                <label class="input-label">Security Question: What is your favorite book?</label>
-                <input type="text" id="registerSecurity" class="input-field" placeholder="Used for resetting password" required>
-            </div>
-            <button type="submit" class="submit-btn">Create Professional Account ➔</button>
-        </form>
-
-        <!-- RESET PASSWORD FORM -->
-        <form id="resetForm" class="portal-form" onsubmit="handleFormSubmit(event, 'reset')">
-            <div class="input-group">
-                <label class="input-label">Username</label>
-                <input type="text" id="resetUser" class="input-field" placeholder="Enter your username" required>
-            </div>
-            <div class="input-group">
-                <label class="input-label">Favorite Book (Security Answer)</label>
-                <input type="text" id="resetSecurity" class="input-field" placeholder="Enter security answer" required>
-            </div>
-            <div class="input-group" style="margin-bottom: 24px;">
-                <label class="input-label">New Password</label>
-                <input type="password" id="resetNewPass" class="input-field" placeholder="••••••••" required>
-            </div>
-            <button type="submit" class="submit-btn">Secure Reset Password ➔</button>
-        </form>
     </div>
 
-    <script>
-        function switchTab(tabId) {
-            // Update tabs active state
-            document.querySelectorAll('.portal-tab').forEach((tab, index) => {
-                const tabs = ['login', 'register', 'reset'];
-                tab.classList.toggle('active', tabs[index] === tabId);
+    <div class="portal-card" id="register-section" style="display: none;">
+        <div class="portal-header">
+            <div class="portal-logo">Register Profile</div>
+            <div class="portal-subtitle">Join the professional didactics program</div>
+        </div>
+
+        <div class="alert-box alert-error" id="register-error"></div>
+        <div class="alert-box alert-success" id="register-success"></div>
+
+        <form id="register-form" onsubmit="handleRegister(event)">
+            <div class="form-group">
+                <label class="form-label" for="reg-username">Choose Username</label>
+                <input class="form-input" id="reg-username" type="text" placeholder="e.g., didactic_teacher" required autocomplete="username">
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="reg-password">Password</label>
+                <input class="form-input" id="reg-password" type="password" placeholder="••••••••" required autocomplete="new-password">
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="reg-answer">Security Recovery Question</label>
+                <div style="font-size: 12px; color: #9ca3af; margin-bottom: 6px;">What is your favorite book or didactics author?</div>
+                <input class="form-input" id="reg-answer" type="text" placeholder="e.g., Piaget" required>
+            </div>
+            <button class="btn-portal" type="submit">Sign Up</button>
+        </form>
+
+        <div class="portal-switch">
+            Already have an account? <a href="#" onclick="toggleSection('login-section')">Login</a>
+        </div>
+    </div>
+
+    <div class="portal-card" id="reset-section" style="display: none;">
+        <div class="portal-header">
+            <div class="portal-logo">Recover Credentials</div>
+            <div class="portal-subtitle">Reset password via security answer</div>
+        </div>
+
+        <div class="alert-box alert-error" id="reset-error"></div>
+        <div class="alert-box alert-success" id="reset-success"></div>
+
+        <form id="reset-form" onsubmit="handleReset(event)">
+            <div class="form-group">
+                <label class="form-label" for="reset-username">Username</label>
+                <input class="form-input" id="reset-username" type="text" placeholder="Enter username..." required autocomplete="username">
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="reset-answer">Security Question Answer</label>
+                <div style="font-size: 12px; color: #9ca3af; margin-bottom: 6px;">What is your favorite book or didactics author?</div>
+                <input class="form-input" id="reset-answer" type="text" placeholder="Enter your answer..." required>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="reset-newpassword">New Password</label>
+                <input class="form-input" id="reset-newpassword" type="password" placeholder="••••••••" required autocomplete="new-password">
+            </div>
+            <button class="btn-portal" type="submit">Update Password</button>
+        </form>
+
+        <div class="portal-switch">
+            Remember credentials? <a href="#" onclick="toggleSection('login-section')">Back to Login</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleSection(sectionId) {
+        document.getElementById('login-section').style.display = 'none';
+        document.getElementById('register-section').style.display = 'none';
+        document.getElementById('reset-section').style.display = 'none';
+        
+        document.getElementById(sectionId).style.display = 'block';
+        
+        // Clear all active notices
+        document.querySelectorAll('.alert-box').forEach(box => {
+            box.style.display = 'none';
+            box.textContent = '';
+        });
+    }
+
+    async function handleLogin(e) {
+        e.preventDefault();
+        const username = document.getElementById('login-username').value;
+        const password = document.getElementById('login-password').value;
+        const errBox = document.getElementById('login-error');
+        
+        errBox.style.display = 'none';
+        
+        try {
+            const res = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
             });
+            const data = await res.json();
+            if (res.ok && data.success) {
+                window.location.href = '/';
+            } else {
+                errBox.style.display = 'block';
+                errBox.textContent = data.message || 'Login failed. Please verify credentials.';
+            }
+        } catch (err) {
+            errBox.style.display = 'block';
+            errBox.textContent = 'Server communication error. Please try again later.';
+        }
+    }
 
-            // Update visible forms
-            document.querySelectorAll('.portal-form').forEach(form => {
-                form.classList.toggle('active', form.id === tabId + 'Form');
+    async function handleRegister(e) {
+        e.preventDefault();
+        const username = document.getElementById('reg-username').value;
+        const password = document.getElementById('reg-password').value;
+        const security_answer = document.getElementById('reg-answer').value;
+        const errBox = document.getElementById('register-error');
+        const succBox = document.getElementById('register-success');
+        
+        errBox.style.display = 'none';
+        succBox.style.display = 'none';
+        
+        try {
+            const res = await fetch('/api/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password, security_answer })
             });
-
-            // Clear alert box
-            const alertBox = document.getElementById('alertBox');
-            alertBox.style.display = 'none';
-            alertBox.className = 'alert-box';
-        }
-
-        async function handleFormSubmit(event, action) {
-            event.preventDefault();
-            const alertBox = document.getElementById('alertBox');
-            alertBox.style.display = 'none';
-            alertBox.className = 'alert-box';
-
-            let payload = {};
-            let endpoint = '';
-
-            if (action === 'login') {
-                payload = {
-                    username: document.getElementById('loginUser').value,
-                    password: document.getElementById('loginPass').value
-                };
-                endpoint = '/api/auth/login';
-            } else if (action === 'register') {
-                payload = {
-                    username: document.getElementById('registerUser').value,
-                    password: document.getElementById('registerPass').value,
-                    security_answer: document.getElementById('registerSecurity').value
-                };
-                endpoint = '/api/auth/register';
-            } else if (action === 'reset') {
-                payload = {
-                    username: document.getElementById('resetUser').value,
-                    security_answer: document.getElementById('resetSecurity').value,
-                    new_password: document.getElementById('resetNewPass').value
-                };
-                endpoint = '/api/auth/reset';
+            const data = await res.json();
+            if (res.ok && data.success) {
+                succBox.style.display = 'block';
+                succBox.textContent = data.message + ' Redirecting to login...';
+                document.getElementById('register-form').reset();
+                setTimeout(() => toggleSection('login-section'), 2000);
+            } else {
+                errBox.style.display = 'block';
+                errBox.textContent = data.message || 'Registration failed.';
             }
-
-            try {
-                const response = await fetch(endpoint, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                const result = await response.json();
-
-                if (response.ok && result.success) {
-                    alertBox.textContent = result.message;
-                    alertBox.classList.add('success');
-                    alertBox.style.display = 'block';
-
-                    if (action === 'login') {
-                        setTimeout(() => {
-                            window.location.href = '/';
-                        }, 800);
-                    } else {
-                        setTimeout(() => {
-                            switchTab('login');
-                            document.getElementById('loginUser').value = payload.username;
-                        }, 1200);
-                    }
-                } else {
-                    alertBox.textContent = result.message || 'An unexpected error occurred.';
-                    alertBox.classList.add('error');
-                    alertBox.style.display = 'block';
-                }
-            } catch (err) {
-                alertBox.textContent = 'Server connection failed. Please verify connection.';
-                alertBox.classList.add('error');
-                alertBox.style.display = 'block';
-            }
+        } catch (err) {
+            errBox.style.display = 'block';
+            errBox.textContent = 'Server communication error. Please try again later.';
         }
-    </script>
+    }
+
+    async function handleReset(e) {
+        e.preventDefault();
+        const username = document.getElementById('reset-username').value;
+        const security_answer = document.getElementById('reset-answer').value;
+        const new_password = document.getElementById('reset-newpassword').value;
+        const errBox = document.getElementById('reset-error');
+        const succBox = document.getElementById('reset-success');
+        
+        errBox.style.display = 'none';
+        succBox.style.display = 'none';
+        
+        try {
+            const res = await fetch('/api/auth/reset_password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, security_answer, new_password })
+            });
+            const data = await res.json();
+            if (res.ok && data.success) {
+                succBox.style.display = 'block';
+                succBox.textContent = data.message + ' Returning to login...';
+                document.getElementById('reset-form').reset();
+                setTimeout(() => toggleSection('login-section'), 2000);
+            } else {
+                errBox.style.display = 'block';
+                errBox.textContent = data.message || 'Credential recovery failed.';
+            }
+        } catch (err) {
+            errBox.style.display = 'block';
+            errBox.textContent = 'Server communication error. Please try again later.';
+        }
+    }
+</script>
 </body>
 </html>
