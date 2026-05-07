@@ -197,6 +197,12 @@ function routeToPage(viewIndex) {
 function switchActiveTab(tabName) {
     AppState.activeTab = tabName;
     
+    // Reset viewport scroll to top instantly when switching tabs!
+    const viewport = document.querySelector('.workspace-viewport');
+    if (viewport) {
+        viewport.scrollTop = 0;
+    }
+    
     const matView = document.getElementById('materialsView');
     const qView = document.getElementById('quizView');
 
