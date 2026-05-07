@@ -55,6 +55,8 @@ if "flask_started" not in st.session_state:
     # Give Flask a brief second to bind to Port 5000 and initialize
     time.sleep(1.0)
 
-# Render the local Flask app inside a full-screen Streamlit iframe component
-# This exposes the high-fidelity page-by-page PDFium textbook views seamlessly on Streamlit Community Cloud!
-st.components.v1.iframe("http://127.0.0.1:5000/", height=800, scrolling=True)
+# Render the local Flask app inside a full-viewport CSS breakout iframe
+# This breaks out of Streamlit's container limits, completely removing double scrollbars, outer screen bouncing, or frame-jumping!
+st.components.v1.html("""
+    <iframe src="http://127.0.0.1:5000/" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; border: none; margin: 0; padding: 0; z-index: 999999; overflow: hidden;"></iframe>
+""", height=0, width=0)
