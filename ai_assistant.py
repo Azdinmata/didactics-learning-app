@@ -1,35 +1,48 @@
 import os
+import re
 from openai import OpenAI
 
-API_KEY = os.environ.get("GROQ_API_KEY")
+MODEL_NAME = "llama-3.3-70b-versatile"
 
-if not API_KEY:
+def _load_groq_key():
+    # 1) Try environment variable
+    key = os.environ.get("GROQ_API_KEY")
+    if key and key != "your_groq_api_key_here":
+        return key
+        
+    # 2) Try .env file relative to script directory
     try:
-        import streamlit as st
-        if "GROQ_API_KEY" in st.secrets:
-            API_KEY = st.secrets["GROQ_API_KEY"]
-    except ImportError:
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        env_path = os.path.join(base_dir, ".env")
+        if os.path.exists(env_path):
+            with open(env_path, "r") as f:
+                for line in f:
+                    if line.strip().startswith("GROQ_API_KEY"):
+                        parts = line.split("=")
+                        if len(parts) >= 2:
+                            val = parts[1].strip().strip('"').strip("'")
+                            if val and val != "your_groq_api_key_here":
+                                return val
+    except Exception:
         pass
-
-if not API_KEY:
+        
+    # 3) Try .streamlit/secrets.toml relative to script directory
     try:
-        secrets_path = os.path.join(".streamlit", "secrets.toml")
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        secrets_path = os.path.join(base_dir, ".streamlit", "secrets.toml")
         if os.path.exists(secrets_path):
             with open(secrets_path, "r") as f:
                 for line in f:
                     if "GROQ_API_KEY" in line:
                         parts = line.split("=")
                         if len(parts) >= 2:
-                            API_KEY = parts[1].strip().strip('"').strip("'")
-                            break
+                            val = parts[1].strip().strip('"').strip("'")
+                            if val and val != "your_groq_api_key_here":
+                                return val
     except Exception:
         pass
-
-client = OpenAI(
-    api_key=API_KEY,
-    base_url="https://api.groq.com/openai/v1"
-)
-MODEL_NAME = "llama-3.3-70b-versatile"
+        
+    return None
 
 SYSTEM_PROMPT = """You are an elite, highly supportive and engaging personal Didactics & Pedagogy Tutor.
 Your mission is to help the user deeply master educational theories, classroom management techniques, and teaching methodologies.
@@ -44,7 +57,19 @@ CRITICAL TUTORING RULES:
 """
 
 def get_real_response(messages, current_mod=None):
-    import re
+    # Dynamically resolve and load key on each request to prevent stale caches and allow instant hot-swapping
+    api_key = _load_groq_key()
+    
+    if not api_key:
+        return "⚠️ The AI Didactics Tutor is currently in offline mode because the `GROQ_API_KEY` credential is not configured. Please add a `GROQ_API_KEY` variable inside a local `.env` file to enable interactive Socratic dialogue!"
+
+    try:
+        client = OpenAI(
+            api_key=api_key,
+            base_url="https://api.groq.com/openai/v1"
+        )
+    except Exception as e:
+        return f"⚠️ Failed to initialize AI client. Please verify that your `GROQ_API_KEY` is formatted correctly: {str(e)}"
     
     lesson_context = ""
     if current_mod:
@@ -96,7 +121,7 @@ CRITICAL RULES FOR THIS SESSION:
     system_prompt = SYSTEM_PROMPT + (lesson_context if lesson_context else "")
     api_messages = [{"role": "system", "content": system_prompt}]
     
-    # Exclude any previous system messages from the Streamlit UI history if they exist
+    # Exclude any previous system messages from history
     for m in messages:
         if m["role"] in ["user", "assistant"]:
             api_messages.append({"role": m["role"], "content": m["content"]})
@@ -105,7 +130,7 @@ CRITICAL RULES FOR THIS SESSION:
     for msg in api_messages:
         if "content" in msg and msg["content"]:
             msg["content"] = "".join(c for c in msg["content"] if not (0xD800 <= ord(c) <= 0xDFFF))
-            
+
     try:
         response = client.chat.completions.create(
             model=MODEL_NAME,
@@ -116,5 +141,5 @@ CRITICAL RULES FOR THIS SESSION:
     except Exception as e:
         error_str = str(e).lower()
         if "429" in error_str or "quota" in error_str or "rate limit" in error_str:
-            return "⚠️ The AI service is temporarily unavailable. Please check your API key or billing settings."
-        return f"⚠️ I'm sorry, I encountered an error while trying to process your request: {str(e)}"
+            return "⚠️ The AI service is temporarily unavailable due to a rate limit or quota issue. Please check your Groq API console settings or try again in a few moments."
+        return f"⚠️ Socratic Tutor API Error: {str(e)}"

@@ -29,7 +29,8 @@ def create_user(username, password, security_answer):
         "password": _hash_password(password),
         "security_answer": security_answer.strip().lower(),
         "unlocked_index": 0,
-        "quiz_scores": {}
+        "quiz_scores": {},
+        "is_new_user": True
     }
     _save_users(users)
     return True, "Account created successfully."
@@ -45,11 +46,27 @@ def verify_login(username, password):
         if "quiz_scores" not in users[username]:
             users[username]["quiz_scores"] = {}
             
+        # Determine if they are a first-time user
+        is_new = users[username].get("is_new_user", False)
+        
         # Convert string keys back to int for quiz_scores to match our app logic
         int_scores = {int(k): v for k, v in users[username]["quiz_scores"].items()}
         users[username]["quiz_scores"] = int_scores
         
-        return True, "Login successful.", users[username]
+        # Build user payload to return to Flask session
+        user_payload = {
+            "username": username,
+            "unlocked_index": users[username]["unlocked_index"],
+            "quiz_scores": int_scores,
+            "is_new_user": is_new
+        }
+        
+        # Flip the flag to False so subsequent sessions recognize them as a returning user
+        if is_new:
+            users[username]["is_new_user"] = False
+            _save_users(users)
+            
+        return True, "Login successful.", user_payload
     return False, "Invalid username or password.", None
 
 def reset_password(username, security_answer, new_password):

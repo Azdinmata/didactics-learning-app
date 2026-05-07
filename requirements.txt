@@ -1,7 +1,5 @@
-pdfplumber
-fpdf
-openai
-markdown
 flask
 pypdfium2
-streamlit
+openai
+python-dotenv
+gunicorn

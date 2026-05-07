@@ -1,15 +1,30 @@
 import os
-from flask import Flask, render_template, request, jsonify, session, send_from_directory, redirect, url_for
+import io
+import pypdfium2 as pdfium
+from flask import Flask, render_template, request, jsonify, session, send_from_directory, redirect, url_for, send_file
 import auth
 import ai_assistant
 from lesson_data import MODULES
 
-app = Flask(__name__)
-app.secret_key = "didactics_hub_premium_secret_key_2026"
+# Local PDF files mapping for offline server-side rendering
+PDF_FILES = [
+    "1) BASIC NOTIONS AND FUNDAMENTALS OF DIDACTICS 1 presentation.pdf",
+    "2) Basic Notions and Fundamentals of Didactics (Foundations of Didacticic).pdf",
+    "3) Learning Theories Behaviorism to TDS.pdf",
+    "4) Methods_and_approaches1_GTM DM ALM SUG SW CLL.pdf",
+    "5)Methods and approaches in language teaching 2 (1).pdf",
+    "6)Didactics-Teaching the Four Skills PPT.pdf",
+    "7) new presentaion for grammar , vocabulary and functions -compressed.pdf",
+    "8) Approach-compressed.pdf",
+    "9) Fundamentals of ELT-EFL.pdf",
+    "10) FUNDAMENTALS of EFL-compressed.pdf"
+]
 
-# Ensure templates and static directories exist
-os.makedirs("templates", exist_ok=True)
-os.makedirs("static", exist_ok=True)
+app = Flask(__name__, static_folder="static", template_folder="templates")
+app.secret_key = "didactics_hub_premium_super_secure_key"
+
+# Ensure lessons directory exists
+os.makedirs("lessons", exist_ok=True)
 
 @app.route("/")
 def index():
@@ -23,241 +38,193 @@ def login_page():
         return redirect(url_for("index"))
     return render_template("login.html")
 
-# --- AUTH APIS ---
-
-@app.route("/api/auth/register", methods=["POST"])
-def register():
+@app.route("/api/auth/login", methods=["POST"])
+def api_login():
     data = request.json or {}
     username = data.get("username", "").strip()
-    password = data.get("password", "").strip()
+    password = data.get("password", "")
+    
+    if not username or not password:
+        return jsonify({"success": False, "message": "Please enter both username and password."}), 400
+        
+    success, message, user_data = auth.verify_login(username, password)
+    if success and user_data:
+        session["username"] = username
+        session["unlocked_index"] = user_data.get("unlocked_index", 0)
+        session["quiz_scores"] = user_data.get("quiz_scores", {})
+        session["is_new_user"] = user_data.get("is_new_user", False)
+        return jsonify({
+            "success": True,
+            "message": "Welcome!" if session["is_new_user"] else "Welcome back!",
+            "user": {
+                "username": username,
+                "unlocked_index": session["unlocked_index"],
+                "quiz_scores": session["quiz_scores"],
+                "is_new_user": session["is_new_user"]
+            }
+        })
+    return jsonify({"success": False, "message": message}), 401
+
+@app.route("/api/auth/register", methods=["POST"])
+def api_register():
+    data = request.json or {}
+    username = data.get("username", "").strip()
+    password = data.get("password", "")
     security_answer = data.get("security_answer", "").strip()
     
     if not username or not password or not security_answer:
         return jsonify({"success": False, "message": "All fields are required."}), 400
         
     success, message = auth.create_user(username, password, security_answer)
-    return jsonify({"success": success, "message": message})
-
-@app.route("/api/auth/login", methods=["POST"])
-def login_api():
-    data = request.json or {}
-    username = data.get("username", "").strip()
-    password = data.get("password", "").strip()
-    
-    if not username or not password:
-        return jsonify({"success": False, "message": "Username and password are required."}), 400
-        
-    success, message, user_data = auth.verify_login(username, password)
     if success:
-        session["username"] = username
-        return jsonify({
-            "success": True,
-            "message": message,
-            "user": {
-                "username": username,
-                "unlocked_index": user_data["unlocked_index"],
-                "quiz_scores": user_data["quiz_scores"]
-            }
-        })
-    return jsonify({"success": False, "message": message}), 401
+        return jsonify({"success": True, "message": message})
+    return jsonify({"success": False, "message": message}), 400
 
-@app.route("/api/auth/reset", methods=["POST"])
-def reset_api():
+@app.route("/api/auth/reset_password", methods=["POST"])
+def api_reset_password():
     data = request.json or {}
     username = data.get("username", "").strip()
     security_answer = data.get("security_answer", "").strip()
-    new_password = data.get("new_password", "").strip()
+    new_password = data.get("new_password", "")
     
     if not username or not security_answer or not new_password:
         return jsonify({"success": False, "message": "All fields are required."}), 400
         
     success, message = auth.reset_password(username, security_answer, new_password)
-    return jsonify({"success": success, "message": message})
+    if success:
+        return jsonify({"success": True, "message": message})
+    return jsonify({"success": False, "message": message}), 400
 
-@app.route("/api/auth/logout", methods=["GET", "POST"])
-def logout():
-    session.pop("username", None)
+@app.route("/api/auth/logout", methods=["POST", "GET"])
+def api_logout():
+    session.clear()
     if request.method == "POST":
         return jsonify({"success": True, "message": "Logged out successfully."})
     return redirect(url_for("login_page"))
 
-# --- DATA APIS ---
-
 @app.route("/api/user", methods=["GET"])
-def get_user_data():
+def api_get_user():
     if "username" not in session:
         return jsonify({"success": False, "message": "Unauthorized"}), 401
-        
-    username = session["username"]
-    # Quick login verification to get latest JSON profile
-    users = auth._load_users()
-    user_data = users.get(username, {})
-    
-    # Format quiz scores back to numbers for frontend easy handling
-    scores = {int(k): v for k, v in user_data.get("quiz_scores", {}).items()}
-    
     return jsonify({
         "success": True,
         "user": {
-            "username": username,
-            "unlocked_index": user_data.get("unlocked_index", 0),
-            "quiz_scores": scores
+            "username": session["username"],
+            "unlocked_index": session.get("unlocked_index", 0),
+            "quiz_scores": session.get("quiz_scores", {}),
+            "is_new_user": session.get("is_new_user", False)
         }
     })
 
-@app.route("/api/modules", methods=["GET"])
-def get_modules():
-    if "username" not in session:
-        return jsonify({"success": False, "message": "Unauthorized"}), 401
-        
-    # Send custom light-weight course modules outline to frontend (quizzes and metadata)
-    outline = []
-    for idx, mod in enumerate(MODULES):
-        outline.append({
-            "index": idx,
-            "title": mod["title"],
-            "description": mod["description"],
-            "quiz": mod["quiz"]  # We keep the quiz questions here for frontend checking
-        })
-    return jsonify({"success": True, "modules": outline})
-
 @app.route("/api/progress", methods=["POST"])
-def update_progress():
+def api_save_progress():
     if "username" not in session:
         return jsonify({"success": False, "message": "Unauthorized"}), 401
         
-    username = session["username"]
     data = request.json or {}
-    unlocked_index = data.get("unlocked_index", 0)
-    quiz_scores_raw = data.get("quiz_scores", {})
+    unlocked_index = data.get("unlocked_index", session.get("unlocked_index", 0))
+    quiz_scores = data.get("quiz_scores", session.get("quiz_scores", {}))
     
-    # Cast keys to integers
-    quiz_scores = {}
-    for k, v in quiz_scores_raw.items():
-        try:
-            quiz_scores[int(k)] = int(v)
-        except ValueError:
-            pass
-            
-    auth.save_user_progress(username, unlocked_index, quiz_scores)
-    return jsonify({"success": True, "message": "Progress saved."})
+    # Force format keys to int for python-level handlers and string for serialization
+    formatted_scores = {int(k): int(v) for k, v in quiz_scores.items()}
+    
+    # Save using auth helper
+    auth.save_user_progress(session["username"], unlocked_index, formatted_scores)
+    
+    session["unlocked_index"] = unlocked_index
+    session["quiz_scores"] = {str(k): v for k, v in formatted_scores.items()}
+    
+    return jsonify({
+        "success": True,
+        "unlocked_index": unlocked_index,
+        "quiz_scores": session["quiz_scores"]
+    })
+
+@app.route("/api/modules", methods=["GET"])
+def api_get_modules():
+    if "username" not in session:
+        return jsonify({"success": False, "message": "Unauthorized"}), 401
+        
+    # Standardize modules list to return cleanly
+    clean_modules = []
+    for idx, mod in enumerate(MODULES):
+        clean_modules.append({
+            "id": idx,
+            "title": mod.get("title", f"Module {idx+1}"),
+            "description": mod.get("description", ""),
+            "structured_lesson": mod.get("structured_lesson", ""),
+            "quiz": mod.get("quiz", [])
+        })
+    return jsonify({"success": True, "modules": clean_modules})
 
 @app.route("/api/chat", methods=["POST"])
-def chat_api():
+def api_chat():
     if "username" not in session:
         return jsonify({"success": False, "message": "Unauthorized"}), 401
         
     data = request.json or {}
-    chat_history = data.get("history", [])
-    module_index = data.get("module_index", -1)
+    messages = data.get("messages", [])
+    current_module_index = data.get("current_module_index", -1)
     
-    active_mod = None
-    if 0 <= module_index < len(MODULES):
-        active_mod = MODULES[module_index]
+    current_mod = None
+    if 0 <= current_module_index < len(MODULES):
+        current_mod = MODULES[current_module_index]
         
-    try:
-        response = ai_assistant.get_real_response(chat_history, active_mod)
-        if not response:
-            response = "⚠️ Received empty response. Please try again."
-    except Exception as e:
-        response = f"⚠️ Error: {str(e)}"
-        
+    # Call Socratic tutor get_real_response method
+    response = ai_assistant.get_real_response(messages, current_mod)
     return jsonify({"success": True, "response": response})
-
-# --- FILE SERVING & PDF RENDERING ---
-
-import io
-import base64
-import pypdfium2 as pdfium
-
-PDF_FILES = [
-    "lessons/1) BASIC NOTIONS AND FUNDAMENTALS OF DIDACTICS 1 presentation.pdf",
-    "lessons/2) Basic Notions and Fundamentals of Didactics (Foundations of Didacticic).pdf",
-    "lessons/3) Learning Theories Behaviorism to TDS.pdf",
-    "lessons/4) Methods_and_approaches1_GTM DM ALM SUG SW CLL.pdf",
-    "lessons/5)Methods and approaches in language teaching 2 (1).pdf",
-    "lessons/6)Didactics-Teaching the Four Skills PPT.pdf",
-    "lessons/7) new presentaion for grammar , vocabulary and functions -compressed.pdf",
-    "lessons/8) Approach-compressed.pdf",
-    "lessons/9) Fundamentals of ELT-EFL.pdf",
-    "lessons/10) FUNDAMENTALS of EFL-compressed.pdf"
-]
-
-import threading
-from flask import send_file
-
-# Global lock to synchronize access to pypdfium2 functions across multi-threaded Flask requests
-PDF_LOCK = threading.Lock()
-
-PAGE_IMAGE_CACHE = {}
-
-@app.route("/api/pdf-info/<int:module_idx>")
-def get_pdf_info_api(module_idx):
-    if "username" not in session:
-        return jsonify({"success": False, "message": "Unauthorized"}), 401
-        
-    if module_idx < 0 or module_idx >= len(PDF_FILES):
-        return jsonify({"success": False, "message": "Module not found"}), 404
-        
-    pdf_path = PDF_FILES[module_idx]
-    if not os.path.exists(pdf_path):
-        return jsonify({"success": False, "message": "PDF file not found"}), 404
-        
-    try:
-        with PDF_LOCK:
-            with pdfium.PdfDocument(pdf_path) as doc:
-                num_pages = len(doc)
-                
-        return jsonify({
-            "success": True,
-            "num_pages": num_pages
-        })
-    except Exception as e:
-        print(f"Error loading PDF info {pdf_path}: {e}")
-        return jsonify({"success": False, "message": str(e)}), 500
-
-@app.route("/api/pdf-page-img/<int:module_idx>/<int:page_idx>")
-def get_pdf_page_image_api(module_idx, page_idx):
-    if "username" not in session:
-        return "Unauthorized", 401
-        
-    cache_key = (module_idx, page_idx)
-    if cache_key in PAGE_IMAGE_CACHE:
-        return send_file(io.BytesIO(PAGE_IMAGE_CACHE[cache_key]), mimetype="image/jpeg")
-        
-    if module_idx < 0 or module_idx >= len(PDF_FILES):
-        return "Module not found", 404
-        
-    pdf_path = PDF_FILES[module_idx]
-    if not os.path.exists(pdf_path):
-        return "PDF file not found", 404
-        
-    try:
-        with PDF_LOCK:
-            with pdfium.PdfDocument(pdf_path) as doc:
-                if page_idx < 0 or page_idx >= len(doc):
-                    return "Page not found", 404
-                    
-                page = doc.get_page(page_idx)
-                # Scale to 2.0 matches standard HD screens razor-sharp
-                pil_image = page.render(scale=2).to_pil()
-                
-                buffer = io.BytesIO()
-                pil_image.save(buffer, format="JPEG", quality=80) # 80% quality for lightning-fast transfer
-                img_bytes = buffer.getvalue()
-                
-                PAGE_IMAGE_CACHE[cache_key] = img_bytes
-    except Exception as e:
-        print(f"Error rendering page {page_idx} of module {module_idx}: {e}")
-        return "Error rendering page", 500
-        
-    return send_file(io.BytesIO(img_bytes), mimetype="image/jpeg")
 
 @app.route("/lessons/<path:filename>")
 def serve_lesson_pdf(filename):
     if "username" not in session:
-        return "Unauthorized", 401
+        return redirect(url_for("login_page"))
     return send_from_directory("lessons", filename)
+
+@app.route("/api/slides/<int:module_idx>/meta")
+def api_slide_meta(module_idx):
+    if "username" not in session:
+        return jsonify({"success": False, "message": "Unauthorized"}), 401
+    if not (0 <= module_idx < len(PDF_FILES)):
+        return jsonify({"success": False, "message": "Invalid module index"}), 400
+        
+    pdf_path = os.path.join("lessons", PDF_FILES[module_idx])
+    if not os.path.exists(pdf_path):
+        return jsonify({"success": False, "message": "PDF file not found"}), 404
+        
+    try:
+        doc = pdfium.PdfDocument(pdf_path)
+        return jsonify({"success": True, "num_pages": len(doc)})
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
+
+@app.route("/api/slides/<int:module_idx>/<int:page_num>")
+def api_slide_render(module_idx, page_num):
+    if "username" not in session:
+        return redirect(url_for("login_page"))
+    if not (0 <= module_idx < len(PDF_FILES)):
+        return "Invalid module index", 400
+        
+    pdf_path = os.path.join("lessons", PDF_FILES[module_idx])
+    if not os.path.exists(pdf_path):
+        return "PDF file not found", 404
+        
+    try:
+        doc = pdfium.PdfDocument(pdf_path)
+        if not (1 <= page_num <= len(doc)):
+            return "Invalid page number", 400
+            
+        page = doc[page_num - 1]
+        # scale=2 gives 144 DPI sharp rendering, scale=3 gives 216 DPI (very high end)
+        bitmap = page.render(scale=2.5)
+        pil_img = bitmap.to_pil()
+        
+        img_io = io.BytesIO()
+        pil_img.save(img_io, 'PNG')
+        img_io.seek(0)
+        
+        return send_file(img_io, mimetype='image/png')
+    except Exception as e:
+        return f"Error rendering page: {str(e)}", 500
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
